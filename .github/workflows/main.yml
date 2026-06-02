@@ -58,8 +58,8 @@ jobs:
       # Proses kompilasi & push Docker Image menuju GitHub Packages
       - name: Build and Push Docker Image to GHCR
         run: |
-          docker build . -t ghcr.io/Axegass/pso-fp-kel15:latest
-          docker push ghcr.io/Axegass/pso-fp-kel15:latest
+          docker build . -t ghcr.io/axegass/pso-fp-kel15:latest
+          docker push ghcr.io/axegass/pso-fp-kel15:latest
 
       # Proses deployment image terkompilasi dari GHCR langsung menuju target Azure App Service
       - name: Deploy Container to Azure App Service
@@ -67,4 +67,4 @@ jobs:
         with:
           app-name: 'pso-fp-kel15'  # Sesuai dengan nama App Service di portal Azure kelompok
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          images: 'ghcr.io/Axegass/pso-fp-kel15:latest'
+          images: 'ghcr.io/axegass/pso-fp-kel15:latest'
