@@ -1,38 +1,33 @@
+import psycopg2
+from psycopg2.extras import RealDictCursor
 import os
-from flaskext.mysql import MySQL
-from pymysql.cursors import DictCursor
 
+class DB:
+    def __init__(self, app=None):
+        # Membaca URL koneksi URI langsung dari Environment Variable Azure
+        # Jika kosong, otomatis pakai fallback string URI dari Supabase kelompok 15
+        self.db_url = os.environ.get("DATABASE_URL")
+        self.connection = None
 
-class DB(object):
-	"""Initialize mysql database """
-	host = os.environ.get("DB_HOST", "localhost")
-	user = os.environ.get("DB_USER", "root")
-	password = os.environ.get("DB_PASSWORD", "")
-	db = os.environ.get("DB_NAME", "lms")
-	table = ""
-	port = int(os.environ.get("DB_PORT", 18945))
+    def connect(self):
+        if self.connection is None or self.connection.closed != 0:
+            # Mengaktifkan autocommit opsional agar koneksi tidak menggantung di Supabase
+            self.connection = psycopg2.connect(self.db_url)
+        return self.connection
 
-	def __init__(self, app):
-		app.config["MYSQL_DATABASE_HOST"] = self.host;
-		app.config["MYSQL_DATABASE_USER"] = self.user;
-		app.config["MYSQL_DATABASE_PASSWORD"] = self.password;
-		app.config["MYSQL_DATABASE_DB"] = self.db;
-		app.config["MYSQL_DATABASE_PORT"] = self.port;
-
-		self.mysql = MySQL(app, cursorclass=DictCursor)
-
-	def cur(self):
-		return self.mysql.get_db().cursor()
-
-	def query(self, q):
-		h = self.cur()
-	
-		if (len(self.table)>0):
-			q = q.replace("@table", self.table)
-
-		h.execute(q)
-
-		return h
-
-	def commit(self):
-		self.query("COMMIT;")
+    def cur(self):
+        # RealDictCursor memaksa output PostgreSQL berbentuk Dictionary
+        return self.connect().cursor(cursor_factory=RealDictCursor)
+        
+    def query(self, q, params=None):
+        cursor = self.cur()
+        try:
+            cursor.execute(q, params)  # params handles safe substitution
+            if any(keyword in q.upper() for keyword in ["INSERT", "UPDATE", "DELETE", "ALTER", "DROP"]):
+                  self.connect().commit()
+            return cursor
+        except Exception as e:
+            # Jika gagal, batalkan transaksi agar database tidak terkunci (Lock)
+            if self.connection:
+                self.connection.rollback()
+            raise e
