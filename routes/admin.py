@@ -98,9 +98,35 @@ def view_book(id):
 @admin_view.route('/books/add', methods=['GET', 'POST'])
 @admin_manager.admin.login_required
 def book_add():
-	admin_manager.admin.set_session(session, g)
-	
-	return render_template('books/add.html', g=g)
+    admin_manager.admin.set_session(session, g)
+    
+    if request.method == 'POST':
+        # 1. Tangkap data yang diketik di Form HTML
+        name = request.form.get('name')
+        desc = request.form.get('desc')
+        author = request.form.get('author')
+        availability = request.form.get('availability')
+        edition = request.form.get('edition')
+        count = request.form.get('count')
+
+        # 2. Validasi input minimal
+        if not name or not count:
+            return render_template('books/add.html', g=g, error="Judul buku dan Jumlah wajib diisi!")
+
+        # 3. Amankan tipe data angka untuk PostgreSQL
+        try:
+            availability = int(availability) if availability else 1
+            count = int(count)
+        except ValueError:
+            return render_template('books/add.html', g=g, error="Jumlah harus berupa angka!")
+
+        # 4. Tembakkan data ke Manager -> DAO -> Database
+        book_manager.add(name, desc, author, availability, edition, count)
+        
+        # 5. Redirect ke daftar buku admin jika sukses
+        return redirect('/admin/books/')
+        
+    return render_template('books/add.html', g=g)
 
 
 @admin_view.route('/books/edit/<int:id>', methods=['GET', 'POST'])
