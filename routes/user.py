@@ -20,25 +20,36 @@ def home():
 @user_view.route('/signin', methods=['GET', 'POST'])
 @user_manager.user.redirect_if_login
 def signin():
-	if request.method == 'POST':
-		_form = request.form
-		email = str(_form["email"])
-		password = str(_form["password"])
+    if request.method == 'POST':
+        _form = request.form
+        email = str(_form["email"])
+        password = str(_form["password"])
 
-		if len(email)<1 or len(password)<1:
-			return render_template('signin.html', error="Email and password are required")
+        if len(email) < 1 or len(password) < 1:
+            return render_template('signin.html', error="Email and password are required")
 
-		d = user_manager.signin(email, hash(password))
+        hashed = hash(password)
 
-		if d and len(d)>0:
-			session['user'] = int(d['id'])
+        # Coba login sebagai admin dulu
+        from Controllers.AdminManager import AdminManager
+        from Models.DAO import DAO as DAOClass
+        admin_manager_local = AdminManager(dao)
+        d_admin = admin_manager_local.signin(email, hashed)
 
-			return redirect("/")
+        if d_admin and len(d_admin) > 0:
+            session['admin'] = int(d_admin["id"])
+            return redirect("/admin/")
 
-		return render_template('signin.html', error="Email or password incorrect")
+        # Kalau bukan admin, coba login sebagai user
+        d = user_manager.signin(email, hashed)
 
+        if d and len(d) > 0:
+            session['user'] = int(d['id'])
+            return redirect("/")
 
-	return render_template('signin.html')
+        return render_template('signin.html', error="Email or password incorrect")
+
+    return render_template('signin.html')
 
 
 @user_view.route('/signup', methods=['GET', 'POST'])
