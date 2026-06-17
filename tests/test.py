@@ -59,17 +59,17 @@ def test_admin_book_lifecycle(browser_context):
     
     # --- STEP C: EDIT BUKU ---
     # Mencari tombol edit pada buku yang baru dibuat
-    page.locator("tr", has_text="Buku Testing Playwright").locator("a[href*='edit/']").click()
+    page.locator("div", has_text="Buku Testing Playwright").locator("a[href*='edit/']").click()
     page.fill("input[name='count']", "10") 
     page.click("button[type='submit']")
     
     # Verifikasi perubahan stok sukses terbaca di tabel admin views
     page.goto(f"{BASE_URL}/admin/books/")
-    expect(page.locator("tr", has_text="Buku Testing Playwright")).to_contain_text("10")
+    expect(page.locator("div", has_text="Buku Testing Playwright")).to_contain_text("10")
     
     # --- STEP D: HAPUS BUKU  ---
     # Kita cari baris tabelnya, lalu klik tag tautan <a> yang mengarah ke rute "delete/"
-    page.locator("tr", has_text="Buku Testing Playwright").locator("a[href*='delete/']").click()
+    page.locator("div", has_text="Buku Testing Playwright").locator("a[href*='delete/']").click()
     
     # Pastikan buku sudah musnah dan hilang dari daftar views admin
     expect(page.get_by_text("Buku Testing Playwright")).not_to_be_visible()
