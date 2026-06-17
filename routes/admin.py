@@ -60,7 +60,7 @@ def users_view():
 
 	id = int(admin_manager.admin.uid())
 	admin = admin_manager.get(id)
-	myusers = admin_manager.getUsersList()
+	myusers = admin_manager.user_list()
 
 	return render_template('users.html', g=g, admin=admin, users=myusers)
 
