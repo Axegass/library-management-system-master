@@ -5,13 +5,8 @@ class UserDAO():
 
 
 	def list(self):
-		users = self.db.query(
-			"SELECT users.id, users.name, users.email, users.bio, users.mob, "
-			"users.lock, users.created_at, COUNT(reserve.book_id) as books_owned "
-			"FROM users LEFT JOIN reserve ON reserve.user_id = users.id "
-			"GROUP BY users.id, users.name, users.email, users.bio, users.mob, "
-			"users.lock, users.created_at"
-		).fetchall()
+		users = self.db.query("select users.id,users.name,users.email,users.bio,users.mob,users.lock,users.created_at,count(reserve.book_id) as books_owned from users LEFT JOIN reserve ON reserve.user_id=users.id GROUP BY reserve.user_id").fetchall()
+
 		return users
 
 	def getById(self, id):
