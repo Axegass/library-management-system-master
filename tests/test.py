@@ -38,7 +38,7 @@ def test_admin_book_lifecycle(browser_context):
     # --- STEP A: LOGIN ADMIN ---
     page.goto(f"{BASE_URL}/admin/signin/")
     page.fill("input[name='email']", "hamza@gmail.com") # Sesuai dummy data lms.sql
-    page.fill("input[name='password']", "025db420560617303c2ba988d050ec62562343bc0fb0358d31d2f0bae8dbede8") 
+    page.fill("input[name='password']", "admin") 
     page.click("button[type='submit']")
     
     # Pastikan dialihkan ke dashboard admin
