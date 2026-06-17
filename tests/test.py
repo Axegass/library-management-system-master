@@ -35,16 +35,16 @@ def test_admin_book_lifecycle(browser_context):
     page = browser_context.new_page()
     
     # --- STEP A: LOGIN ADMIN ---
-    page.goto(f"{BASE_URL}/admin/signin")
+    page.goto(f"{BASE_URL}/signin")
     page.fill("input[name='email']", "hamza@gmail.com") # Sesuai dummy data lms.sql
-    page.fill("input[name='password']", "hamza") 
+    page.fill("input[name='password']", "025db420560617303c2ba988d050ec62562343bc0fb0358d31d2f0bae8dbede8") 
     page.click("button[type='submit']")
     
     # Pastikan dialihkan ke dashboard admin
-    expect(page).to_have_url(f"{BASE_URL}/admin/")
+    expect(page).to_have_url(f"{BASE_URL}")
     
     # --- STEP B: TAMBAH BUKU ---
-    page.goto(f"{BASE_URL}/admin/books/add")
+    page.goto(f"{BASE_URL}/books/add")
     page.fill("input[name='name']", "Buku Testing Playwright")
     page.fill("textarea[name='desc']", "Deskripsi buku untuk otomasi testing menggunakan Playwright.")
     page.fill("input[name='author']", "Tim DevOps Kelompok 15")
@@ -53,7 +53,7 @@ def test_admin_book_lifecycle(browser_context):
     page.click("button[type='submit']")
     
     # Pastikan buku baru muncul di daftar views admin
-    page.goto(f"{BASE_URL}/admin/books/")
+    page.goto(f"{BASE_URL}/books/")
     expect(page.get_by_text("Buku Testing Playwright")).to_be_visible()
     
     # --- STEP C: EDIT BUKU ---
@@ -63,7 +63,7 @@ def test_admin_book_lifecycle(browser_context):
     page.click("button[type='submit']")
     
     # Verifikasi perubahan stok sukses
-    page.goto(f"{BASE_URL}/admin/books/")
+    page.goto(f"{BASE_URL}/books/")
     expect(page.locator("tr", has_text="Buku Testing Playwright")).to_contain_text("10")
     
     # --- STEP D: HAPUS BUKU ---
