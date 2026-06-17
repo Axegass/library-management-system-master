@@ -21,7 +21,7 @@ def test_smoke_pages_no_500(browser_context):
     page = browser_context.new_page()
     
     # Daftar rute penting yang harus dicek statusnya
-    routes_to_check = ["/", "/signin", "/signup", "/books/", "admin/signin"]
+    routes_to_check = ["/", "/signin", "/signup", "/books/", "/admin/signin/"]
     
     for route in routes_to_check:
         response = page.goto(f"{BASE_URL}{route}")
@@ -36,7 +36,7 @@ def test_admin_book_lifecycle(browser_context):
     page = browser_context.new_page()
     
     # --- STEP A: LOGIN ADMIN ---
-    page.goto(f"{BASE_URL}/admin/signin")
+    page.goto(f"{BASE_URL}/admin/signin/")
     page.fill("input[name='email']", "hamza@gmail.com") # Sesuai dummy data lms.sql
     page.fill("input[name='password']", "025db420560617303c2ba988d050ec62562343bc0fb0358d31d2f0bae8dbede8") 
     page.click("button[type='submit']")
