@@ -56,13 +56,16 @@ def signout():
 @admin_view.route('/users/view/', methods=['GET'])
 @admin_manager.admin.login_required
 def users_view():
-	admin_manager.admin.set_session(session, g)
+    admin_manager.admin.set_session(session, g)
 
-	id = int(admin_manager.admin.uid())
-	admin = admin_manager.get(id)
-	myusers = admin_manager.user_list()
+    id = int(admin_manager.admin.uid())
+    admin = admin_manager.get(id)
+    
+    # Memanggil list user yang sudah diperbaiki query-nya
+    myusers = admin_manager.user_list()
 
-	return render_template('users.html', g=g, admin=admin, users=myusers)
+    # PERBAIKAN: Menambahkan 'admin/' di depan agar Flask tidak bingung mencari file HTML-nya
+    return render_template('admin/users.html', g=g, admin=admin, users=myusers)
 
 
 
