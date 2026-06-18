@@ -19,21 +19,32 @@ class BookDAO():
         return q
 
     def unreserve(self, user_id, book_id):
+        # Cek apakah entri reserve ada terlebih dahulu
+        check_query = "SELECT * FROM reserve WHERE user_id=%s AND book_id=%s"
+        check = self.db.query(check_query, (user_id, book_id))
+        existing = check.fetchall()
+        
+        if len(existing) == 0:
+            return False
+            
         # Hapus satu entri peminjaman yang terkait dengan user dan buku
-        q = self.db.query("DELETE FROM reserve WHERE user_id=%s AND book_id=%s RETURNING id;", (user_id, book_id))
-        deleted = q.fetchone()
-        if deleted:
-            self.db.query("UPDATE books set count=count+1 where id=%s;", (book_id,))
-            return True
-
-        return False
+        self.db.query("DELETE FROM reserve WHERE user_id=%s AND book_id=%s;", (user_id, book_id))
+        
+        # Update stock buku
+        self.db.query("UPDATE books set count=count+1 where id=%s;", (book_id,))
+        
+        return True
 
     def getBooksByUser(self, user_id):
-        q = self.db.query("select * from books left join reserve on reserve.book_id = books.id where reserve.user_id=%s", (user_id,))
+        # Pastikan kita mengambil kolom id dari tabel books, bukan dari reserve!
+        q = self.db.query("""
+            select books.*, reserve.id as reserve_id 
+            from books 
+            left join reserve on reserve.book_id = books.id 
+            where reserve.user_id=%s
+        """, (user_id,))
 
         books = q.fetchall()
-
-        print(books)
         return books
 
     def getBooksCountByUser(self, user_id):
