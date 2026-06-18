@@ -13,14 +13,23 @@ class BookDAO():
         if not self.available(book_id):
             return "err_out"
 
-        q = self.db.query("INSERT INTO reserve (user_id, book_id) VALUES('{}', '{}');".format(user_id, book_id))
-        
-        self.db.query("UPDATE books set count=count-1 where id={};".format(book_id))
+        q = self.db.query("INSERT INTO reserve (user_id, book_id) VALUES(%s, %s);", (user_id, book_id))
+        self.db.query("UPDATE books set count=count-1 where id=%s;", (book_id,))
 
         return q
 
+    def unreserve(self, user_id, book_id):
+        # Hapus satu entri peminjaman yang terkait dengan user dan buku
+        q = self.db.query("DELETE FROM reserve WHERE user_id=%s AND book_id=%s RETURNING id;", (user_id, book_id))
+        deleted = q.fetchone()
+        if deleted:
+            self.db.query("UPDATE books set count=count+1 where id=%s;", (book_id,))
+            return True
+
+        return False
+
     def getBooksByUser(self, user_id):
-        q = self.db.query("select * from books left join reserve on reserve.book_id = books.id where reserve.user_id={}".format(user_id))
+        q = self.db.query("select * from books left join reserve on reserve.book_id = books.id where reserve.user_id=%s", (user_id,))
 
         books = q.fetchall()
 
