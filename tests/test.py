@@ -59,24 +59,24 @@ def test_admin_book_lifecycle(browser_context):
     
     # --- STEP C: EDIT BUKU ---
     # Pakai .card.book sebagai container, bukan div biasa
-    # filter() dengan has_text lalu ambil first() supaya tidak ambiguous
+    # filter() dengan has_text lalu ambil first supaya tidak ambiguous
     page.locator(".card.book").filter(
         has_text="Buku Testing Playwright"
-    ).first().locator("a[href*='edit/']").click()
+    ).first.locator("a[href*='edit/']").click()
 
-    page.fill("input[name='qty']", "10")
+    page.fill("input[name='count']", "10")
     page.click("button[type='submit']")
 
     # Verifikasi stok berubah
     page.goto(f"{BASE_URL}/admin/books/")
     expect(
-        page.locator(".card.book").filter(has_text="Buku Testing Playwright").first()
+        page.locator(".card.book").filter(has_text="Buku Testing Playwright").first
     ).to_contain_text("10")
 
     # --- STEP D: HAPUS BUKU ---
     page.locator(".card.book").filter(
         has_text="Buku Testing Playwright"
-    ).first().locator("a[href*='delete/']").click()
+    ).first.locator("a[href*='delete/']").click()
 
     # Pastikan buku hilang
     page.goto(f"{BASE_URL}/admin/books/")
