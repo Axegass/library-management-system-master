@@ -23,36 +23,38 @@
 		<div>
 			<h2>Manage Books</h2>
 			{% if books %}
-				{% for book in books %}
-				<div class="card book">
-				  <img src="/static/images/bg.jpg" class="card-img-top" alt="{{book[1]}}">
-				  <div class="card-body">
-				    <h5 class="card-title"><a href="{{book['id']}}">{{book['name']}}</a></h5>
-				    {% if book["availability"] < 1 %}
-				    	<span class="badge badge-warning" style="margin-bottom: 5px;">Assigned</span>
-				    {% endif %}
-				    <p class="card-text bookdesc">{{book["desc"]}}</p>
+				<div class="book-grid-container">
+					{% for book in books %}
+					<div class="card book">
+					  <img src="/static/images/bg.jpg" class="card-img-top" alt="{{book[1]}}">
+					  <div class="card-body">
+					    <h5 class="card-title"><a href="{{book['id']}}">{{book['name']}}</a></h5>
+					    {% if book["availability"] < 1 %}
+					    	<span class="badge badge-warning" style="margin-bottom: 5px;">Assigned</span>
+					    {% endif %}
+					    <p class="card-text bookdesc">{{book["desc"]}}</p>
 
-				    <p class="card-text">
-				    <span class="badge badge-{{ 'success' if book['availability'] > 0 else 'danger' }}" style="margin-bottom: 5px;">
-				    	{% if book["count"] > 0%}
-				    	  Books Left: {{book['count']}}
-				    	{% else %}
-				    	  All gone
-				    	{% endif %}
-				    </span>
-					</p>
-					<form method="get" action="">
-						<a href="edit/{{book['id']}}" class="btn btn-outline-primary">
-							<i class="bi bi-pen-fill"></i> Edit
-						</a>
-						<a href="delete/{{book['id']}}" class="btn btn-outline-danger">
-							<i class="bi bi-trash"></i> Delete
-						</a>
-					</form>
-				  </div>
+					    <p class="card-text">
+					    <span class="badge badge-{{ 'success' if book['availability'] > 0 else 'danger' }}" style="margin-bottom: 5px;">
+					    	{% if book["count"] > 0%}
+					    	  Books Left: {{book['count']}}
+					    	{% else %}
+					    	  All gone
+					    	{% endif %}
+					    </span>
+						</p>
+						<form method="get" action="">
+							<a href="edit/{{book['id']}}" class="btn btn-outline-primary">
+								<i class="bi bi-pen-fill"></i> Edit
+							</a>
+							<a href="delete/{{book['id']}}" class="btn btn-outline-danger">
+								<i class="bi bi-trash"></i> Delete
+							</a>
+						</form>
+					  </div>
+					</div>
+					{% endfor %}
 				</div>
-				{% endfor %}
 			{% else %}
 				<p>No Books In Stash!</p>
 			{% endif %}	

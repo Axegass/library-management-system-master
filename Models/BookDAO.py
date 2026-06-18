@@ -10,13 +10,19 @@ class BookDAO():
 
 
     def reserve(self, user_id, book_id):
+        # Cek apakah user sudah meminjam buku ini dulu
+        check_existing = self.db.query("SELECT * FROM reserve WHERE user_id=%s AND book_id=%s", (user_id, book_id))
+        already_reserved = check_existing.fetchall()
+        if len(already_reserved) > 0:
+            return "already_reserved"
+        
         if not self.available(book_id):
             return "err_out"
 
-        q = self.db.query("INSERT INTO reserve (user_id, book_id) VALUES(%s, %s);", (user_id, book_id))
+        self.db.query("INSERT INTO reserve (user_id, book_id) VALUES(%s, %s);", (user_id, book_id))
         self.db.query("UPDATE books set count=count-1 where id=%s;", (book_id,))
 
-        return q
+        return "success"
 
     def unreserve(self, user_id, book_id):
         # Cek apakah entri reserve ada terlebih dahulu
@@ -87,7 +93,10 @@ class BookDAO():
         else:
             books = self.db.query(query)
         
-        return books.fetchall()
+        result = books.fetchall()
+        # Selalu urutkan berdasarkan id agar posisi buku tidak berubah-ubah
+        result.sort(key=lambda x: x['id'])
+        return result
 
     def getReserverdBooksByUser(self, user_id):
         query="select concat(book_id,',') as user_books from reserve WHERE user_id={}".format(user_id)
@@ -102,14 +111,18 @@ class BookDAO():
         return books
 
     def search_book(self, name, availability=1):
-        query="select * from books where name LIKE '%{}%'".format(name)
+        query="select * from books where name LIKE %s"
 
         # Usually when no-admin user query for book
-        if availability==1: query= query+"  AND availability={}".format(availability)
-
-        q = self.db.query(query)
+        if availability==1: 
+            query= query+" AND availability=%s"
+            q = self.db.query(query, (f'%{name}%', availability))
+        else:
+            q = self.db.query(query, (f'%{name}%',))
+            
         books = q.fetchall()
-        
+        # Urutkan hasil pencarian juga berdasarkan id
+        books.sort(key=lambda x: x['id'])
         return books
     
     def add(self, name, desc, author, availability, edition, count):

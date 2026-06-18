@@ -5,3 +5,15 @@
 .welcome h1 {
 	font-size: 3.5em;
 }
+
+/* Fix book grid layout agar posisi tidak bergeser */
+.book-grid-container {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+	gap: 20px;
+}
+
+.book {
+	margin: 0 !important;
+	width: 100% !important;
+}
