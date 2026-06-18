@@ -33,6 +33,9 @@ class BookManager():
 
         return books
 
+    def return_book(self, user_id, book_id):
+        return self.dao.unreserve(user_id, book_id)
+
     def getUserBooks(self, user_id):
         books = self.dao.getBooksByUser(user_id)
 
