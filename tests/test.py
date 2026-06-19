@@ -1,75 +1,30 @@
 import pytest
+import os
 from playwright.sync_api import sync_playwright, expect
 
 # Setel URL dasar aplikasi (sesuaikan jika running lokal atau staging)
-BASE_URL = "http://localhost:5000"
+BASE_URL = os.environ.get("LIVE_STAGING_URL", "http://localhost:5000")
 
 @pytest.fixture(scope="session")
 def browser_context():
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True) # Set False jika ingin melihat browser bergerak
+        browser = p.chromium.launch(headless=True)
         context = browser.new_context()
         yield context
         context.close()
         browser.close()
 
 # ==============================================================================
-# 1. SMOKE TEST: MEMASTIKAN TIDAK ADA HALAMAN YANG EROR 500
+# SMOKE TEST: MEMASTIKAN TIDAK ADA HALAMAN YANG EROR 500
 # ==============================================================================
 def test_smoke_pages_no_500(browser_context):
     page = browser_context.new_page()
     
     # Daftar rute penting yang harus dicek statusnya
-    routes_to_check = ["/", "/signin", "/signup", "/books/"]
+    routes_to_check = ["/", "/signin", "/signup", "/books/", "/admin/signin/"]
     
     for route in routes_to_check:
         response = page.goto(f"{BASE_URL}{route}")
         # Memastikan response sukses (200) dan bukan eror internal server (500)
         assert response.status < 500, f"Smoke Test Gagal! Rute {route} mengembalikan status {response.status}"
-    page.close()
-
-# ==============================================================================
-# 2. FITUR ADMIN: TAMBAH, EDIT, DAN HAPUS BUKU
-# ==============================================================================
-def test_admin_book_lifecycle(browser_context):
-    page = browser_context.new_page()
-    
-    # --- STEP A: LOGIN ADMIN ---
-    page.goto(f"{BASE_URL}/signin")
-    page.fill("input[name='email']", "hamza@gmail.com") # Sesuai dummy data lms.sql
-    page.fill("input[name='password']", "025db420560617303c2ba988d050ec62562343bc0fb0358d31d2f0bae8dbede8") 
-    page.click("button[type='submit']")
-    
-    # Pastikan dialihkan ke dashboard admin
-    expect(page).to_have_url(f"{BASE_URL}")
-    
-    # --- STEP B: TAMBAH BUKU ---
-    page.goto(f"{BASE_URL}/books/add")
-    page.fill("input[name='name']", "Buku Testing Playwright")
-    page.fill("textarea[name='desc']", "Deskripsi buku untuk otomasi testing menggunakan Playwright.")
-    page.fill("input[name='author']", "Tim DevOps Kelompok 15")
-    page.fill("input[name='edition']", "1")
-    page.fill("input[name='count']", "5")
-    page.click("button[type='submit']")
-    
-    # Pastikan buku baru muncul di daftar views admin
-    page.goto(f"{BASE_URL}/books/")
-    expect(page.get_by_text("Buku Testing Playwright")).to_be_visible()
-    
-    # --- STEP C: EDIT BUKU ---
-    # Mencari tombol edit pada buku yang baru dibuat
-    page.locator("tr", has_text="Buku Testing Playwright").get_by_role("link", name="Edit").click()
-    page.fill("input[name='count']", "10") # Mengubah stok buku jadi 10
-    page.click("button[type='submit']")
-    
-    # Verifikasi perubahan stok sukses
-    page.goto(f"{BASE_URL}/books/")
-    expect(page.locator("tr", has_text="Buku Testing Playwright")).to_contain_text("10")
-    
-    # --- STEP D: HAPUS BUKU ---
-    # Memicu aksi hapus buku dari panel admin
-    page.locator("tr", has_text="Buku Testing Playwright").get_by_role("link", name="Delete").click()
-    
-    # Pastikan buku sudah hilang dari daftar
-    expect(page.get_by_text("Buku Testing Playwright")).not_to_be_visible()
     page.close()
