@@ -4,9 +4,12 @@ on:
   push:
     branches: [staging]
   pull_request:
-    branches: [staging]  # CI jalan saat ada PR ke staging
+    branches: [staging]
 
 jobs:
+  # ==============================================================================
+  # JOB 1: LINTING & VALIDASI KODE
+  # ==============================================================================
   ci:
     runs-on: ubuntu-latest
     steps:
@@ -25,10 +28,15 @@ jobs:
           pip install flake8
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 
+  # ==============================================================================
+  # JOB 2: DEPLOYMENT KE GOOGLE CLOUD RUN STAGING
+  # ==============================================================================
   deploy-staging:
     runs-on: ubuntu-latest
-    needs: ci  # ← deploy hanya jalan kalau ci sukses
-    if: github.event_name == 'push'  # ← deploy hanya saat push, bukan PR
+    needs: ci  # ← Hanya berjalan jika Job 1 sukses
+    if: github.event_name == 'push'  # ← Hanya jalan saat push
+    outputs:
+      staging_url: ${{ steps.get_url.outputs.STAGING_URL }} # melempar URL ke Job 3
     steps:
       - uses: actions/checkout@v4
 
@@ -40,13 +48,13 @@ jobs:
 
       - run: gcloud auth configure-docker asia-southeast2-docker.pkg.dev
 
-      - name: Build & Push
+      - name: Build & Push Image ke GCP Artifact Registry
         run: |
           IMAGE="asia-southeast2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/pso"
           docker build -t $IMAGE:$GITHUB_SHA .
           docker push $IMAGE:$GITHUB_SHA
 
-      - name: Deploy ke Staging
+      - name: Deploy ke Google Cloud Run Staging
         run: |
           IMAGE="asia-southeast2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/pso"
           gcloud run deploy my-app-staging \
@@ -57,3 +65,35 @@ jobs:
             --port=5000 \
             --memory=512Mi \
             --set-env-vars="DATABASE_URL=${{ secrets.DATABASE_URL }}"
+
+      - name: Tangkap URL Live Server
+        id: get_url
+        run: |
+          URL=$(gcloud run services describe my-app-staging --platform=managed --region=${{ secrets.GCP_REGION }} --format='value(status.url)')
+          echo "STAGING_URL=$URL" >> $GITHUB_OUTPUT
+
+  # ==============================================================================
+  # JOB 3: AUTOMATED SMOKE TESTING DENGAN PLAYWRIGHT (PASCA-DEPLOY)
+  # ==============================================================================
+  smoke-test:
+    runs-on: ubuntu-latest
+    needs: deploy-staging  # ← Hanya berjalan jika Job 2 sukses deploy
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python untuk Testing
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Test Dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install playwright pytest
+          sudo apt-get update && sudo apt-get install -y libasound2t64
+          playwright install chromium
+
+      - name: Jalankan Playwright Test pada Live URL Staging
+        run: |
+          # Menangkap output URL yang dilempar oleh Job 2 tadi
+          LIVE_STAGING_URL="${{ needs.deploy-staging.outputs.staging_url }}" pytest -s tests/test.py
