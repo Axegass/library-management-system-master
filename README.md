@@ -3,6 +3,14 @@ A simple flask app to manage users along with mysql (now postgresql) service
 
 ![Libray Management App - Flask](https://github.com/hamzaavvan/library-management-system/blob/master/ss/ss2.JPG?raw=true)
 
+5026231100 - Defita Aulia Syarif
+
+5026231171 - Redo Adika Dharmawan
+
+5026231209 - Adityo Rafi Wardhana
+
+5026231217 - Rahmadhona Elokpribadi Kusmawan
+
 
 # 📚 Library Management System (DevOps CI/CD Pipeline)
 
@@ -15,10 +23,10 @@ Sebuah aplikasi web manajemen perpustakaan berbasis pola arsitektur **MVC (Model
 
 ## 🛠️ Tech Stack & Arsitektur
 
-* **Backend Framework:** Python (Flask v2.3.2)[cite: 5]
-* **Frontend Component:** Server-Side Rendering (SSR) via HTML, Jinja2 Template Engine, & Bootstrap CSS[cite: 5]
-* **Database:** PostgreSQL (Relational Database)[cite: 5]
-* **Package Manager:** pip (`requirements.txt`)[cite: 5]
+* **Backend Framework:** Python (Flask v2.3.2)
+* **Frontend Component:** Server-Side Rendering (SSR) via HTML, Jinja2 Template Engine, & Bootstrap CSS
+* **Database:** PostgreSQL (Relational Database)
+* **Package Manager:** pip (`requirements.txt`)
 * **CI/CD Automation:** GitHub Actions
 * **Cloud Infrastructure:** Google Cloud Platform (GCP)
 
@@ -27,10 +35,10 @@ Sebuah aplikasi web manajemen perpustakaan berbasis pola arsitektur **MVC (Model
 ## 🚀 Fitur Utama (CRUD Aplikasi)
 
 Aplikasi ini memiliki antarmuka (UI) intuitif yang mendukung pengelolaan dokumentasi data buku:
-* **Tambah Buku (Create):** Menambahkan data buku baru yang dipinjam atau dikoleksi ke dalam sistem perpustakaan[cite: 5].
-* **Lihat Daftar (Read):** Menampilkan katalog daftar buku secara rapi yang ditarik langsung dari database[cite: 5].
-* **Edit Data (Update):** Memperbarui detail informasi buku jika terdapat penyesuaian status[cite: 5].
-* **Hapus Buku (Delete):** Menghapus catatan buku yang sudah tidak relevan dari daftar dokumentasi[cite: 5].
+* **Tambah Buku (Create):** Menambahkan data buku baru yang dipinjam atau dikoleksi ke dalam sistem perpustakaan.
+* **Lihat Daftar (Read):** Menampilkan katalog daftar buku secara rapi yang ditarik langsung dari database.
+* **Edit Data (Update):** Memperbarui detail informasi buku jika terdapat penyesuaian status.
+* **Hapus Buku (Delete):** Menghapus catatan buku yang sudah tidak relevan dari daftar dokumentasi.
 
 ---
 
