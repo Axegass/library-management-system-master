@@ -31,32 +31,34 @@
 				{% if search %}
 				<h4>Search Found ({{count}})</h4>
 				{% endif %}
-				{% for book in books %}
-				<div class="card book">
-				  <img src="/static/images/bg.jpg" class="card-img-top" alt="{{book[1]}}">
-				  <div class="card-body">
-				    <h5 class="card-title"><a href="/books/{{book['id']}}">{{book['name']}}</a></h5>
-				    {% if book['availability'] < 1 %}
-				    	<span class="badge badge-warning" style="margin-bottom: 5px;">Assigned</span>
-				    {% endif %}
-				    <p class="card-text bookdesc">{{book['desc']}}</p>
+				<div class="book-grid-container">
+					{% for book in books %}
+					<div class="card book">
+					  <img src="/static/images/bg.jpg" class="card-img-top" alt="{{book[1]}}">
+					  <div class="card-body">
+					    <h5 class="card-title"><a href="/books/{{book['id']}}">{{book['name']}}</a></h5>
+					    {% if book['availability'] < 1 %}
+					    	<span class="badge badge-warning" style="margin-bottom: 5px;">Assigned</span>
+					    {% endif %}
+					    <p class="card-text bookdesc">{{book['desc']}}</p>
 
-				    <p class="card-text">
-				    <span class="badge badge-{{ 'primary' if book['count'] > 0 else 'secondary' }}" style="margin-bottom: 5px;">
-				    	{% if book['count'] > 0%}
-				    	  Books Left: {{book['count']}}
-				    	{% else %}
-				    	  All gone
-				    	{% endif %}
-				    </span>
-					</p>
+					    <p class="card-text">
+					    <span class="badge badge-{{ 'primary' if book['count'] > 0 else 'secondary' }}" style="margin-bottom: 5px;">
+					    	{% if book['count'] > 0%}
+					    	  Books Left: {{book['count']}}
+					    	{% else %}
+					    	  All gone
+					    	{% endif %}
+					    </span>
+						</p>
 
-				    {% if book['count'] > 0 %}
-				    <a href="/books/add/{{book['id']}}" {{ 'disabled' if user_books!=None and str(book['id']) in user_books else '' }} class="btn btn-outline-warning {{ 'disabled' if str(book['id']) in user_books else '' }}"><i class="bi bi-journal-plus"></i> {{ 'Added' if str(book['id']) in user_books else 'Add' }}</a>
-				    {% endif %}
-				  </div>
+					    {% if book['count'] > 0 %}
+					    <a href="/books/add/{{book['id']}}" {{ 'disabled' if user_books!=None and str(book['id']) in user_books else '' }} class="btn btn-outline-warning {{ 'disabled' if str(book['id']) in user_books else '' }}"><i class="bi bi-journal-plus"></i> {{ 'Added' if str(book['id']) in user_books else 'Add' }}</a>
+					    {% endif %}
+					  </div>
+					</div>
+					{% endfor %}
 				</div>
-				{% endfor %}
 			{% else %}
 				<h4>No Books Found!</h4>
 				<p>Please contact the librarian</p>

@@ -5,9 +5,30 @@ class UserDAO():
 
 
 	def list(self):
-		users = self.db.query("select users.id,users.name,users.email,users.bio,users.mob,users.lock,users.created_at,count(reserve.book_id) as books_owned from users LEFT JOIN reserve ON reserve.user_id=users.id GROUP BY reserve.user_id").fetchall()
-
-		return users
+			# PERBAIKAN QUERY: Memasukkan semua kolom users ke dalam aturan GROUP BY PostgreSQL
+			query = """
+				SELECT 
+					users.id, 
+					users.name, 
+					users.email, 
+					users.bio, 
+					users.mob, 
+					users.lock, 
+					users.created_at, 
+					COUNT(reserve.book_id) AS books_owned 
+				FROM users 
+				LEFT JOIN reserve ON reserve.user_id = users.id 
+				GROUP BY 
+					users.id, 
+					users.name, 
+					users.email, 
+					users.bio, 
+					users.mob, 
+					users.lock, 
+					users.created_at
+			"""
+			q = self.db.query(query)
+			return q.fetchall()
 
 	def getById(self, id):
 		q = self.db.query("select * from users where id='{}'".format(id))
@@ -17,7 +38,12 @@ class UserDAO():
 		return user
 
 	def getUsersByBook(self, book_id):
-		q = self.db.query("select * from users LEFT JOIN reserve ON reserve.user_id = users.id WHERE reserve.book_id={}".format(book_id))
+		q = self.db.query("""
+			select users.* 
+			from users 
+			LEFT JOIN reserve ON reserve.user_id = users.id 
+			WHERE reserve.book_id=%s
+		""", (book_id,))
 
 		user = q.fetchall()
 
