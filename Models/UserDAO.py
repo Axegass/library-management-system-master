@@ -38,7 +38,12 @@ class UserDAO():
 		return user
 
 	def getUsersByBook(self, book_id):
-		q = self.db.query("select * from users LEFT JOIN reserve ON reserve.user_id = users.id WHERE reserve.book_id={}".format(book_id))
+		q = self.db.query("""
+			select users.* 
+			from users 
+			LEFT JOIN reserve ON reserve.user_id = users.id 
+			WHERE reserve.book_id=%s
+		""", (book_id,))
 
 		user = q.fetchall()
 

@@ -2,10 +2,12 @@ from flask import Blueprint, g, escape, session, redirect, render_template, requ
 from app import dao as DAO
 from Misc.functions import *
 from Controllers.UserManager import UserManager
+from Controllers.BookManager import BookManager
 
 user_view = Blueprint('user_routes', __name__, template_folder='/templates')
 
 user_manager = UserManager(DAO)
+book_manager = BookManager(DAO)
 
 @user_view.route('/', methods=['GET'])
 def home():
@@ -99,3 +101,21 @@ def update():
 
 	flash('Your info has been updated!')
 	return redirect("/user/")
+
+
+@user_view.route('/user/return/<int:id>', methods=['GET'])
+@user_manager.user.login_required
+def return_book(id=None):
+	user_manager.user.set_session(session, g)
+	user_id = int(user_manager.user.uid())
+
+	if id is None:
+		flash('Invalid book selected for return.')
+		return redirect('/user/')
+
+	if book_manager.return_book(user_id, id):
+		flash('Book returned successfully.')
+	else:
+		flash('Failed to return book. Please try again.')
+
+	return redirect('/user/')
